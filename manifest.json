@@ -1,7 +1,7 @@
 {
   "name": "Data Scientist Transition Plan",
   "short_name": "DS Plan",
-  "start_url": "./Data_Scientist_Transition_Plan.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#060a16",
   "theme_color": "#060a16",
