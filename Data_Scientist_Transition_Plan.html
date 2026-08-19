@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#060a16">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DS Plan">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>Data Scientist Transition Plan</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background:
+      radial-gradient(900px 500px at 8% -10%, rgba(53,167,255,0.16), transparent 60%),
+      radial-gradient(800px 460px at 105% 0%, rgba(53,167,255,0.10), transparent 55%),
+      #060a16;
+    background-attachment: fixed;
+    color: #eaf2fc;
+    line-height: 1.5;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .title-row { display: flex; align-items: center; gap: 12px; }
+  h1 { font-size: 1.25rem; font-weight: 650; letter-spacing: -0.02em; color: #f5f9ff; }
+  .subtitle { color: #8ea3c9; font-size: 12px; margin-top: 2px; }
+  .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .updated { font-size: 11.5px; color: #5f719a; }
+  @media (max-width: 480px) {
+    header { flex-direction: column; align-items: flex-start; }
+    .header-right { align-items: flex-start; text-align: left; }
+  }
+
+  .status-pill { display:inline-block; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; }
+  .status-pill.ontrack { background: rgba(52,211,153,0.16); color: #34d399; }
+  .status-pill.behind { background: rgba(243,103,103,0.16); color: #f36767; }
+  .status-pill.ahead { background: rgba(53,167,255,0.18); color: #7cc4ff; }
+  .status-pill.notstarted { background: rgba(245,185,66,0.16); color: #f5b942; }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (min-width: 760px) { .grid { grid-template-columns: 1.3fr 1fr; } }
+
+  .card { position: relative; overflow: hidden; border-radius: 16px; padding: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.35); }
+  .card > * { position: relative; z-index: 1; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .card-header-left { display: flex; align-items: center; gap: 10px; }
+  .card h2 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: #8ea3c9; font-weight: 600; }
+
+  .card--neutral {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 32%),
+      linear-gradient(150deg, #10203f 0%, #0b1730 45%, #060b18 100%);
+    border: 1px solid rgba(53,167,255,0.16);
+  }
+  .card--neutral::before { content:''; position:absolute; top:-70px; right:-70px; width:240px; height:240px; background: radial-gradient(circle, rgba(53,167,255,0.18), transparent 70%); pointer-events:none; }
+  .card--neutral::after { content:''; position:absolute; bottom:-80px; left:-60px; width:220px; height:220px; background: radial-gradient(circle, rgba(53,167,255,0.10), transparent 70%); pointer-events:none; }
+  .card--blue {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.10) 0%, transparent 32%),
+      rgba(53,167,255,0.16);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(53,167,255,0.32);
+  }
+
+  .icon-badge { width: 30px; height: 30px; border-radius: 50%; background: rgba(53,167,255,0.16); border: 1px solid rgba(90,190,255,0.4); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .icon-badge svg { width: 16px; height: 16px; stroke: #bfe0ff; }
+  .icon-badge.lg { width: 36px; height: 36px; }
+  .icon-badge.lg svg { width: 19px; height: 19px; }
+  .icon-badge.sm { width: 24px; height: 24px; background: rgba(53,167,255,0.14); }
+  .icon-badge.sm svg { width: 13px; height: 13px; }
+  .check-badge { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #35a7ff; flex-shrink: 0; }
+  .check-badge svg { width: 10px; height: 10px; stroke: #06101f; stroke-width: 3; }
+
+  .progress-body { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .ring-col { flex: 0 0 120px; display: flex; flex-direction: column; align-items: center; }
+  .ring-wrap { position: relative; width: 120px; height: 120px; }
+  .ring-wrap .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-center .ring-value { font-size: 1.4rem; font-weight: 700; color: #f5f9ff; }
+  .ring-center .ring-label { font-size: 9.5px; color: #8ea3c9; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .stats-col { flex: 1; min-width: 180px; display: flex; flex-direction: column; }
+  .stat { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(120,170,255,0.12); }
+  .stat:first-child { border-top: none; padding-top: 0; }
+  .stat-label { font-size: 12px; color: #8ea3c9; flex-shrink: 0; }
+  .stat-right { text-align: right; }
+  .stat-value { font-size: 1rem; font-weight: 650; color: #f5f9ff; white-space: nowrap; }
+  .stat-sub { font-size: 11px; color: #5f719a; margin-top: 1px; }
+
+  .phase-breakdown { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(120,170,255,0.12); }
+  .phase-row { display:flex; align-items:center; gap:10px; font-size:12px; color:#8ea3c9; margin-bottom:9px; }
+  .phase-row:last-child { margin-bottom: 0; }
+  .phase-row .pname { flex: 0 0 130px; color:#cfe0ff; }
+  .phase-row .ptrack { flex:1; height:7px; background:rgba(120,170,255,0.12); border-radius:99px; overflow:hidden; }
+  .phase-row .pfill { height:100%; background: linear-gradient(90deg,#1d6fe0,#35a7ff); }
+  .phase-row .pcount { flex: 0 0 44px; text-align:right; font-weight:600; color:#cfe0ff; }
+
+  .rhythm-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-top: 8px; }
+  @media (max-width: 560px) { .rhythm-grid { grid-template-columns: repeat(4,1fr); } }
+  .rhythm-day { background: rgba(6,12,26,0.35); border: 1px solid rgba(120,190,255,0.16); border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 10.5px; color: #cfe0ff; }
+  .rhythm-day .d { font-weight: 700; margin-bottom: 5px; color: #f5f9ff; }
+  .rhythm-day.rest { opacity: .5; }
+  .rhythm-day .h { color: #bfe0ff; font-weight: 700; font-size: 11px; margin-top: 4px; }
+  .startdate-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .startdate-row label { font-size: 12.5px; color: #cfe0ff; }
+  .startdate-row input[type=date] { padding: 9px 10px; background: rgba(6,12,26,0.4); border: 1px solid rgba(120,190,255,0.3); border-radius: 8px; font-size: 15px; color: #f5f9ff; color-scheme: dark; flex: 1; min-width: 140px; }
+
+  .card--curriculum { margin-bottom: 20px; }
+  .tabs { display: flex; gap: 3px; background: rgba(6,12,26,0.4); padding: 4px; border-radius: 8px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-btn { background: transparent; border: none; padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: #9db3d9; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+  .tab-btn.active { background: rgba(53,167,255,0.24); color: #f5f9ff; }
+  .phase-panel { display: none; margin-top: 16px; }
+  .phase-panel.active { display: block; }
+
+  .month-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 25%), rgba(6,12,26,0.55);
+    border: 1px solid rgba(120,170,255,0.14); border-radius: 12px; margin-bottom: 12px; overflow: hidden;
+  }
+  .month-header { padding: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 10px; }
+  .month-title-wrap { flex: 1; min-width: 0; }
+  .month-title { font-size: 14px; font-weight: 650; color: #f5f9ff; margin-bottom: 3px; }
+  .month-summary { font-size: 12px; color: #7d90b8; }
+  .month-progress-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .month-progress-track { width: 44px; height: 5px; background: rgba(120,170,255,0.14); border-radius: 99px; overflow: hidden; }
+  .month-progress-fill { height: 100%; background: #35a7ff; }
+  .month-progress-text { font-size: 11px; color: #8ea3c9; white-space: nowrap; font-weight: 600; }
+  .chevron { color: #5f719a; font-size: 13px; transition: transform .2s ease; }
+  .month-body { padding: 4px 14px 14px; display: none; }
+  .month-body.open { display: block; }
+
+  .group-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 640px) { .group-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); } }
+  .group-box {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 28%), rgba(8,15,30,0.6);
+    border: 1px solid rgba(120,170,255,0.14); border-radius: 10px; padding: 14px; display: flex; flex-direction: column;
+  }
+  .group-box.complete { border-color: rgba(53,167,255,0.5); background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 28%), rgba(53,167,255,0.08); }
+  .group-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+  .group-head-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .group-title { font-size: 12px; font-weight: 700; color: #cfe0ff; text-transform: uppercase; letter-spacing: 0.03em; }
+  .group-count { font-size: 11px; color: #5f719a; font-weight: 600; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+  .group-courses { background: rgba(53,167,255,0.10); border: 1px solid rgba(53,167,255,0.22); border-radius: 8px; padding: 9px 10px; margin-bottom: 10px; font-size: 12px; }
+  .group-courses div { margin-bottom: 4px; color: #b9cdf0; }
+  .group-courses div:last-child { margin-bottom: 0; }
+  .group-courses strong { color: #a9d4ff; }
+  .group-tasks { list-style: none; flex: 1; }
+  .task-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 6px; border-radius: 8px; }
+  .task-item.done { background: rgba(53,167,255,0.09); }
+  .task-item input { margin-top: 2px; width: 20px; height: 20px; accent-color: #35a7ff; cursor: pointer; flex-shrink: 0; }
+  .task-item label { cursor: pointer; font-size: 13.5px; color: #e4ecfa; }
+  .task-item.done label { color: #5f719a; text-decoration: line-through; }
+
+  .actions-bar { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  button.secondary { background: rgba(53,167,255,0.10); color: #eaf2fc; border: 1px solid rgba(120,190,255,0.28); border-radius: 99px; padding: 11px 20px; font-size: 13.5px; cursor: pointer; font-family: inherit; flex: 1; min-width: 140px; }
+  button.secondary:active { background: rgba(53,167,255,0.22); }
+
+  .disclaimer { font-size: 11px; color: #5f719a; margin-top: 16px; line-height: 1.5; border-top: 1px solid rgba(120,170,255,0.12); padding-top: 12px; }
+
+  @media print {
+    .actions-bar, .startdate-row, .tabs, .chevron { display: none !important; }
+    .month-body { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="title-row">
+    <span class="icon-badge lg" id="icon-title"></span>
+    <div>
+      <h1>Data Scientist Transition Plan</h1>
+      <div class="subtitle">12 months &middot; ~144 tasks &middot; Target &asymp;&pound;50k</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="status-pill notstarted" id="status-pill">Set a start date</span>
+    <div class="updated" id="track-detail"></div>
+  </div>
+</header>
+
+<div class="grid">
+
+  <div class="card card--neutral card--progress">
+    <div class="card-header"><div class="card-header-left"><span class="icon-badge" id="icon-progress"></span><h2>Progress</h2></div></div>
+    <div class="progress-body">
+      <div class="ring-col">
+        <div class="ring-wrap">
+          <canvas id="progressRing"></canvas>
+          <div class="ring-center">
+            <div class="ring-value" id="ringValue">0%</div>
+            <div class="ring-label">Complete</div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-col">
+        <div class="stat"><div class="stat-label">Tasks done</div><div class="stat-right"><div class="stat-value" id="statDone">0 / 144</div></div></div>
+        <div class="stat"><div class="stat-label">Current month</div><div class="stat-right"><div class="stat-value" id="statMonth">&mdash;</div></div></div>
+        <div class="stat"><div class="stat-label">Applications begin</div><div class="stat-right"><div class="stat-value">Month 10</div><div class="stat-sub" id="statAppsIn">&mdash;</div></div></div>
+      </div>
+    </div>
+    <div class="phase-breakdown" id="phaseBreakdown"></div>
+  </div>
+
+  <div class="card card--blue card--rhythm">
+    <div class="card-header"><div class="card-header-left"><span class="icon-badge" id="icon-rhythm"></span><h2>Your Weekly Rhythm</h2></div></div>
+    <div style="font-size:12.5px;color:#cfe0ff;">~10&ndash;13 hrs/week around a 9-6 job. Two protected rest days.</div>
+    <div class="rhythm-grid">
+      <div class="rhythm-day"><div class="d">Mon</div>New material<div class="h">1h15</div></div>
+      <div class="rhythm-day"><div class="d">Tue</div>Practice<div class="h">1h15</div></div>
+      <div class="rhythm-day rest"><div class="d">Wed</div>Rest<div class="h">&mdash;</div></div>
+      <div class="rhythm-day"><div class="d">Thu</div>New material<div class="h">1h15</div></div>
+      <div class="rhythm-day rest"><div class="d">Fri</div>Rest<div class="h">&mdash;</div></div>
+      <div class="rhythm-day"><div class="d">Sat</div>Project work<div class="h">3h</div></div>
+      <div class="rhythm-day"><div class="d">Sun</div>Project + review<div class="h">3h</div></div>
+    </div>
+    <div class="startdate-row">
+      <label for="start-date">Start date</label>
+      <input type="date" id="start-date">
+    </div>
+    <div class="disclaimer">Applications start month 10 by design. Nothing stops you applying earlier if you're moving faster.</div>
+  </div>
+
+</div>
+
+<div class="actions-bar">
+  <button class="secondary" onclick="window.print()">Export / Print</button>
+  <button class="secondary" onclick="resetPlan()">Reset progress</button>
+</div>
+
+<div class="card card--neutral card--curriculum">
+  <div class="card-header"><div class="card-header-left"><span class="icon-badge" id="icon-curriculum"></span><h2>Curriculum</h2></div></div>
+  <div style="font-size:12px;color:#7d90b8;margin-bottom:10px;">Each box is one skill/course &mdash; its free/paid options and to-dos together.</div>
+  <div class="tabs" id="phaseTabs"></div>
+  <div id="phasePanels"></div>
+</div>
+
+<div class="card card--neutral" style="margin-top:20px;">
+  <div class="card-header"><div class="card-header-left"><span class="icon-badge" id="icon-sync"></span><h2>Sync Between Devices</h2></div></div>
+  <div style="font-size:12px;color:#7d90b8;margin-bottom:12px;">This desktop version and your phone version are separate copies with separate storage &mdash; no account or server links them. This code is how you carry progress between them manually.</div>
+  <div style="font-size:12.5px;color:#b9cdf0;background:rgba(53,167,255,0.08);border:1px solid rgba(53,167,255,0.2);border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+    <strong style="color:#a9d4ff;">How to use it:</strong>
+    <ol style="margin:8px 0 0;padding-left:18px;">
+      <li style="margin-bottom:6px;">On the device you just updated (e.g. checked boxes on your phone), tap <strong style="color:#a9d4ff;">Copy</strong> below &mdash; this copies a code representing everything you've checked off.</li>
+      <li style="margin-bottom:6px;">Send that code to your other device however's easiest &mdash; a note to self, Messages, email, whatever you'd normally use to move text between devices.</li>
+      <li style="margin-bottom:6px;">On the other device, paste the code into the <strong style="color:#a9d4ff;">"Paste a code"</strong> field and tap <strong style="color:#a9d4ff;">Load</strong>.</li>
+      <li>That device now matches the one you copied from. Loading a code fully replaces the receiving device's progress &mdash; it doesn't merge, so always copy from whichever device has the most up-to-date progress.</li>
+    </ol>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <div>
+      <label style="font-size:12px;color:#9db3d9;display:block;margin-bottom:5px;">Your code (copy this)</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="sync-code-out" readonly style="flex:1;min-width:0;padding:9px 10px;background:rgba(6,12,26,0.4);border:1px solid rgba(120,190,255,0.3);border-radius:8px;font-size:12px;color:#eaf2fc;font-family:monospace;">
+        <button class="secondary" onclick="copySyncCode()" style="flex:0 0 auto;min-width:0;">Copy</button>
+      </div>
+    </div>
+    <div>
+      <label style="font-size:12px;color:#9db3d9;display:block;margin-bottom:5px;">Paste a code from your other device</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="sync-code-in" placeholder="Paste code here" style="flex:1;min-width:0;padding:9px 10px;background:rgba(6,12,26,0.4);border:1px solid rgba(120,190,255,0.3);border-radius:8px;font-size:12px;color:#eaf2fc;font-family:monospace;">
+        <button class="secondary" onclick="loadSyncCode()" style="flex:0 0 auto;min-width:0;">Load</button>
+      </div>
+    </div>
+    <div id="sync-status" style="font-size:12px;color:#8ea3c9;min-height:16px;"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const MONTHS = [{"num": 1, "phase": "Phase 1 \u2014 Foundations", "title": "Python & SQL Foundations", "summary": "Get your dev environment running, build core Python fluency, and turn your existing SQL knowledge into something interview-solid. Add descriptive statistics as the first layer of the stats you'll need later.", "groups": [{"category": "Setup", "free": null, "paid": null, "tasks": ["Set up Python (Anaconda or plain Python + VS Code/Jupyter) and create a GitHub account", "Create a GitHub repo called 'data-science-journey' to log your progress"]}, {"category": "Python", "free": "freeCodeCamp \u2014 Scientific Computing with Python (free, self-paced)", "paid": "Codecademy Python 3 course (~\u00a315-20/mo)", "tasks": ["Python basics: variables, data types, control flow (if/else, loops)", "Python: functions, list/dict comprehensions, basic OOP concepts", "Practice: 5 more Python exercises (HackerRank or Codewars, easy difficulty)"]}, {"category": "SQL", "free": "Kaggle Learn: Intro to SQL + Advanced SQL (free, ~4-6hrs total)", "paid": "DataCamp SQL track (~\u00a330-40/mo) if you want more structured practice", "tasks": ["Kaggle Learn: Intro to SQL \u2014 course + all exercises", "Kaggle Learn: Advanced SQL \u2014 joins, subqueries, intro window functions", "Practice: 10 SQL problems on StrataScratch or LeetCode (free tier)"]}, {"category": "Statistics", "free": "Khan Academy: Statistics & Probability, descriptive stats module (free)", "paid": null, "tasks": ["Khan Academy: descriptive statistics \u2014 mean, median, variance, standard deviation, distributions"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Read 3 real Data Scientist / Data Analyst job descriptions and note the common required skills"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week: redo any SQL or Python problems that gave you trouble", "Milestone check: can you write a Python function that loads a CSV and prints summary stats?"]}]}, {"num": 2, "phase": "Phase 1 \u2014 Foundations", "title": "Data Manipulation & Visualization", "summary": "This is where you start actually working with real, messy data \u2014 cleaning it, reshaping it, and making it visual. Probability theory starts here too, it's the foundation under every ML model later.", "groups": [{"category": "Pandas/NumPy", "free": "Kaggle Learn: Pandas (free)", "paid": "DataCamp 'Data Analyst with Python' track (~\u00a330-40/mo)", "tasks": ["Kaggle Learn: Pandas course + exercises", "Practice: clean a messy real dataset from Kaggle \u2014 handle missing values, duplicates, wrong types", "Learn NumPy basics: arrays and vectorized operations"]}, {"category": "Visualization", "free": "Kaggle Learn: Data Visualization (free)", "paid": null, "tasks": ["Kaggle Learn: Data Visualization course", "Recreate 3 charts from a public report or dashboard using Matplotlib/Seaborn"]}, {"category": "Probability", "free": "Khan Academy: Probability (free)", "paid": null, "tasks": ["Khan Academy: probability basics \u2014 distributions, conditional probability, intro Bayes"]}, {"category": "SQL", "free": null, "paid": null, "tasks": ["Practice: 10 more SQL problems focused on aggregate functions and GROUP BY"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Mini-project: pick a Kaggle dataset, do full cleaning + 5 visualizations, write a short written summary", "Set up a portfolio README template on your GitHub profile"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Read 2 'day in the life of a data scientist' articles for context on the actual job"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week: redo your weakest topic from weeks 1-2", "Milestone check: can you take a raw CSV and produce a clean, visualized summary on your own?"]}]}, {"num": 3, "phase": "Phase 1 \u2014 Foundations", "title": "Inferential Statistics & Math for ML", "summary": "The statistics that actually get asked about in interviews (hypothesis testing, p-values) plus just enough linear algebra to understand what ML models are doing under the hood, not just how to call .fit().", "groups": [{"category": "Statistics", "free": "Khan Academy: Inferential statistics (free)", "paid": null, "tasks": ["Learn hypothesis testing: t-tests, p-values, statistical significance", "Learn confidence intervals and how to interpret them correctly", "Read about correlation vs. causation and common statistical pitfalls"]}, {"category": "Linear Algebra", "free": "3Blue1Brown 'Essence of Linear Algebra' series on YouTube (free)", "paid": "Coursera 'Mathematics for Machine Learning' (audit free, ~\u00a340-50/mo for certificate)", "tasks": ["Watch the 3Blue1Brown 'Essence of Linear Algebra' series", "Practice: vectors and matrix multiplication, by hand and with NumPy"]}, {"category": "Git/GitHub", "free": "GitHub's own free 'Git Handbook' + Learn Git Branching (free, interactive)", "paid": null, "tasks": ["Learn Git properly: commits, branches, pull requests (if not already comfortable)"]}, {"category": "SQL", "free": null, "paid": null, "tasks": ["Practice: 10 more SQL interview-style problems"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Mini-project: run a hypothesis test on a real dataset (A/B-test style), write up your findings"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Start following 2-3 data science newsletters or people for industry context"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Self-test: timed review of everything from months 1-3 (Python, SQL, stats)", "Milestone check: can you explain what a p-value actually means to a non-technical person?", "Buffer day: catch up on anything that slipped"]}]}, {"num": 4, "phase": "Phase 2 \u2014 ML Core", "title": "Intro to Machine Learning + Project 1", "summary": "Your first real ML models. This month is also where Project 1 starts \u2014 everything after this is partly new learning, partly applying it to something portfolio-worthy.", "groups": [{"category": "Machine Learning", "free": "Kaggle Learn: Intro to Machine Learning + Intermediate Machine Learning (free)", "paid": "Google Advanced Data Analytics Certificate on Coursera (~\u00a340-50/mo) or Andrew Ng's ML Specialization (lectures free on YouTube, paid for certificate)", "tasks": ["Kaggle Learn: Intro to Machine Learning course", "Learn train/test split and the concepts of overfitting vs underfitting", "Implement linear regression with scikit-learn (and understand it conceptually first)", "Implement logistic regression with scikit-learn", "Learn evaluation metrics: accuracy, precision, recall, F1, RMSE, R-squared", "Kaggle Learn: Intermediate Machine Learning (missing values, categorical encoding, pipelines)"]}, {"category": "SQL", "free": null, "paid": null, "tasks": ["Practice: 5 more SQL problems focused on window functions"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Choose your Project 1 dataset and write down the specific business question it answers", "Project 1: data cleaning + exploratory data analysis phase", "Project 1: build a baseline model"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week", "Milestone: Project 1 has a working end-to-end baseline model"]}]}, {"num": 5, "phase": "Phase 2 \u2014 ML Core", "title": "Classification & Regression Algorithms + Project 1 done, Project 2 starts", "summary": "Broaden beyond basic regression: trees, forests, nearest-neighbours, and the tuning process that turns a mediocre model into a good one. Project 1 gets finished and published this month \u2014 a real milestone.", "groups": [{"category": "Machine Learning", "free": "Kaggle Learn continues to cover this; supplement with scikit-learn's own documentation/tutorials (free)", "paid": "StatQuest with Josh Starmer on YouTube (free) is excellent for building real intuition on these algorithms", "tasks": ["Learn decision trees and random forests (theory + scikit-learn implementation)", "Learn K-nearest neighbours and SVM basics", "Learn cross-validation (k-fold) and why a single train/test split isn't enough", "Learn hyperparameter tuning: GridSearchCV / RandomizedSearchCV"]}, {"category": "SQL", "free": null, "paid": null, "tasks": ["Practice: 10 more SQL problems focused on subqueries and CTEs"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Project 1: improve your model with a better algorithm and tuning", "Project 1: write a proper README \u2014 problem, data, approach, results, what you'd do differently", "Publish Project 1 to GitHub with clean documentation", "Choose Project 2 \u2014 pick a different domain/dataset than Project 1", "Project 2: data cleaning + EDA"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week", "Milestone: Project 1 is live on GitHub with a README you'd be proud to show an interviewer"]}]}, {"num": 6, "phase": "Phase 2 \u2014 ML Core", "title": "Unsupervised Learning + Project 2 done, Project 3 starts", "summary": "Clustering and dimensionality reduction round out your ML toolkit. Project 2 wraps up, and Project 3 is where you start steering toward something that reflects your own interests, not just a generic Kaggle dataset.", "groups": [{"category": "Machine Learning", "free": "Kaggle Learn / scikit-learn documentation (free)", "paid": null, "tasks": ["Learn k-means clustering (theory + scikit-learn implementation)", "Learn PCA (dimensionality reduction) and when it's actually useful", "Learn about class imbalance and how to handle it"]}, {"category": "SQL", "free": null, "paid": null, "tasks": ["Practice: 5 more SQL problems"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Project 2: build a baseline model", "Project 2: tune and improve the model", "Project 2: write README + publish to GitHub", "Choose Project 3 \u2014 aim for something closer to your own interests or background (e.g. a visual/creative angle, or a business-analytics question you're genuinely curious about)", "Project 3: EDA + cleaning"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Read 2-3 case studies of real data science projects at actual companies"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week", "Milestone: 2 projects published, a 3rd underway"]}]}, {"num": 7, "phase": "Phase 2 \u2014 ML Core", "title": "Advanced SQL + Deep Learning Intro + Project 3 done", "summary": "Sharpen the SQL you'll actually be tested on in interviews, get a conceptual (not necessarily deep) grounding in neural networks, and finish Project 3.", "groups": [{"category": "SQL", "free": "Kaggle Learn / StrataScratch practice sets (free)", "paid": null, "tasks": ["Advanced SQL: window functions deep dive (RANK, LAG/LEAD, running totals)", "Advanced SQL: CTEs and basic query optimization", "Practice: 10 advanced SQL problems, timed", "Practice: mock SQL technical interview questions, timed"]}, {"category": "Deep Learning", "free": "Kaggle Learn: Intro to Deep Learning (free)", "paid": "fast.ai Practical Deep Learning course (free, more involved)", "tasks": ["Learn the conceptual basics of neural networks \u2014 what they are, why they work, when you'd use one", "Optional: 1-2 modules of a deep learning intro course (Kaggle Learn or fast.ai)"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Project 3: build and tune the model", "Project 3: write README + publish to GitHub"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Update your GitHub profile: pin your best repos, tidy the profile page"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week", "Milestone: 3 solid, documented projects published", "Buffer day: catch up on anything behind"]}]}, {"num": 8, "phase": "Phase 3 \u2014 Specialization", "title": "Specialization + Deployment Basics + Project 4", "summary": "Pick a lane based on what the job postings you actually want are asking for, learn to ship a model somewhere a non-technical person could click on it, and build Project 4 around that specialization.", "groups": [{"category": "Deployment", "free": "Streamlit documentation + tutorials (free) \u2014 fastest way to turn a model into a clickable app", "paid": null, "tasks": ["Learn the basics of model deployment: build a simple Streamlit app or Flask API", "Deploy one of your earlier projects as a small interactive app", "Optional: learn the basics of data/model versioning"]}, {"category": "Specialization", "free": "Pick based on the research task below \u2014 Kaggle Learn has free short courses on NLP, time series, etc.", "paid": null, "tasks": ["Research 3 possible specializations (e.g. business/product analytics, NLP, forecasting, a visual/creative-data angle) and pick one based on real job postings you like"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Choose Project 4, aligned with your chosen specialization", "Project 4: EDA + cleaning", "Project 4: baseline model, then an improved version"]}, {"category": "Interview Prep", "free": null, "paid": null, "tasks": ["Practice: 5 SQL + 5 Python questions, timed"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Update your LinkedIn headline and About section to reflect the direction you're heading"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week", "Milestone: at least one deployed, interactive project live and linkable", "Buffer day"]}]}, {"num": 9, "phase": "Phase 3 \u2014 Specialization", "title": "Portfolio & Application Materials", "summary": "Less new learning, more turning eight months of work into materials that get you interviews: CV, LinkedIn, GitHub, and your first outreach into the data science community.", "groups": [{"category": "Project Work", "free": null, "paid": null, "tasks": ["Project 4: write README, publish, polish the deployment"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Build/rewrite your CV, tailored to both Data Analyst and junior Data Scientist roles", "Rewrite LinkedIn: headline, About section, experience, add your projects", "Clean up your GitHub profile: pin your best 3-5 repos, add a profile README", "Write 1-2 short LinkedIn or blog posts about one of your projects, for visibility", "Research 20 target companies/roles \u2014 a mix of Analyst and junior Data Scientist", "Draft a cover letter template you can adapt quickly", "Join 1-2 data science communities (Kaggle forums, a local meetup, a Slack/Discord group)"]}, {"category": "Interview Prep", "free": "Glassdoor / Levels.fyi interview question threads for target companies (free)", "paid": null, "tasks": ["Practice a full mock technical interview (SQL + stats + ML concepts) \u2014 record yourself or ask a peer"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week: identify your weakest area and spend extra time there", "Milestone: CV, LinkedIn and GitHub are all genuinely application-ready", "Buffer day"]}]}, {"num": 10, "phase": "Phase 4 \u2014 Job Search", "title": "Applications Begin", "summary": "Start applying for real, in volume, while keeping your interview skills sharp. Volume matters here \u2014 this is a numbers game as much as a skills one.", "groups": [{"category": "Applications", "free": null, "paid": null, "tasks": ["Apply to 10+ roles \u2014 a mix of Data Analyst and junior/associate Data Scientist", "Follow up on any applications from earlier in the month", "Apply to 10 more roles", "Review and refine your CV based on any feedback or lack of response patterns"]}, {"category": "Interview Prep", "free": null, "paid": null, "tasks": ["Practice: 10 SQL interview questions, timed", "Practice: 5 Python/pandas interview questions, timed", "Review common ML interview questions (bias-variance tradeoff, overfitting, why you'd choose one model over another)", "Do 1 mock interview (with a peer, mentor, or structured self-practice)", "Prepare a clear, concise 'walk me through this project' pitch for each portfolio project"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Networking: message 5 people working in data roles for a short informational chat"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week", "Milestone: 20+ applications sent, first interview conversations starting"]}]}, {"num": 11, "phase": "Phase 4 \u2014 Job Search", "title": "Interview Sprint", "summary": "This is where applications turn into interviews and offers. Keep applying even while you're interviewing \u2014 don't let a promising first-round conversation stop your pipeline.", "groups": [{"category": "Applications", "free": null, "paid": null, "tasks": ["Continue applying \u2014 10+ more roles", "Keep applying \u2014 don't stop once interviews start"]}, {"category": "Interview Prep", "free": null, "paid": null, "tasks": ["Prepare for and attend any first-round interviews", "Practice take-home / case-study style exercises (common in data science hiring)", "Practice explaining your projects clearly and concisely, under time pressure", "Review whatever statistics/ML concepts interview feedback shows you're weakest on", "Research salary/negotiation benchmarks for your target roles (~\u00a350k band)", "Attend any interviews or technical tests scheduled this month"]}, {"category": "Career & Networking", "free": null, "paid": null, "tasks": ["Continue networking outreach \u2014 5 more people"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Review week: adjust your strategy based on what's actually working", "Milestone: at least 2-3 active interview processes running", "Buffer day"]}]}, {"num": 12, "phase": "Phase 4 \u2014 Job Search", "title": "Close Out & Negotiate", "summary": "The final stretch: convert interviews into an offer, negotiate it properly, and if an offer hasn't landed yet, use interview feedback to close the specific gap rather than restarting from scratch.", "groups": [{"category": "Interview Prep", "free": null, "paid": null, "tasks": ["Continue interviews and any final rounds", "Prepare for final-round or technical deep-dive interviews", "Research salary benchmarks for any offers received, compared to your ~\u00a350k target", "Practice the actual negotiation conversation before you're in it"]}, {"category": "Applications", "free": null, "paid": null, "tasks": ["Evaluate offers on more than salary: role fit, team, growth path toward Data Scientist if starting as Analyst", "Accept an offer and plan your notice period, or:", "If no offer yet \u2014 do a honest gap analysis: what specifically is missing, and target that directly"]}, {"category": "Project Work", "free": null, "paid": null, "tasks": ["Final polish pass on your portfolio"]}, {"category": "Review & Milestone", "free": null, "paid": null, "tasks": ["Plan your first 90 days in the new role", "Milestone: offer accepted, or a clear, specific next-step plan if not", "Take stock of 12 months of consistent work \u2014 this is a genuinely big deal", "Buffer day"]}]}];
+const PHASES = ["Phase 1 \u2014 Foundations", "Phase 2 \u2014 ML Core", "Phase 3 \u2014 Specialization", "Phase 4 \u2014 Job Search"];
+
+const ICONS = {
+  gradcap: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9 2 2 0 1 1-2.8 2.8 1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3 2 2 0 1 1-2.8-2.8 1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9 2 2 0 1 1 2.8-2.8 1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3 2 2 0 1 1 2.8 2.8 1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z"/>',
+  code: '<polyline points="8 6 3 12 8 18"/><polyline points="16 6 21 12 16 18"/>',
+  database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+  barchart: '<line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/>',
+  table: '<rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/>',
+  piechart: '<path d="M12 2v10l7 7"/><path d="M12 2a10 10 0 1 0 10 10"/>',
+  percent: '<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.3"/><circle cx="17.5" cy="17.5" r="2.3"/>',
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  branch: '<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+  cpu: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  upload: '<path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  users: '<circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="18" cy="9" r="2.3"/><path d="M15.5 14.2c2.7.4 4.7 2.4 4.7 4.8"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.9 8.9 0 0 1-4-1L3 20l1.3-4.1a8.4 8.4 0 0 1-1-4A8.4 8.4 0 0 1 12 3.5a8.4 8.4 0 0 1 9 8z"/>',
+  send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+  flag: '<path d="M4 22V4"/><path d="M4 4h13l-2.5 4L17 12H4"/>',
+  dot: '<circle cx="12" cy="12" r="4"/>',
+sync: '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+};
+
+const CATEGORY_ICON = {
+  'Setup': 'gear', 'Python': 'code', 'SQL': 'database', 'Statistics': 'barchart',
+  'Pandas/NumPy': 'table', 'Visualization': 'piechart', 'Probability': 'percent',
+  'Linear Algebra': 'grid', 'Git/GitHub': 'branch', 'Machine Learning': 'cpu',
+  'Deep Learning': 'layers', 'Deployment': 'upload', 'Specialization': 'target',
+  'Project Work': 'briefcase', 'Career & Networking': 'users', 'Interview Prep': 'chat',
+  'Applications': 'send', 'Review & Milestone': 'flag'
+};
+
+function svgIcon(name){
+  const inner = ICONS[name] || ICONS.dot;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+}
+function iconBadge(name, size){
+  const cls = size ? ('icon-badge ' + size) : 'icon-badge';
+  return `<span class="${cls}">${svgIcon(name)}</span>`;
+}
+function checkBadge(){
+  return `<span class="check-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>`;
+}
+
+const STORAGE_KEY = 'ds_plan_progress_mobile_v1';
+const STORAGE_START = 'ds_plan_start_date_mobile_v1';
+
+function loadState(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function hashStr(s){
+  let h = 0;
+  for (let i=0; i<s.length; i++){ h = (Math.imul(31,h) + s.charCodeAt(i)) | 0; }
+  return (h>>>0).toString(36);
+}
+function taskKey(monthNum, taskText){ return 'm'+monthNum+'_'+hashStr(taskText); }
+
+function allTasksFlat(){
+  const out = [];
+  MONTHS.forEach(m => m.groups.forEach(g => g.tasks.forEach(t => out.push({m, g, t}))));
+  return out;
+}
+function totalTasks(){ return allTasksFlat().length; }
+function completedTasks(){
+  return allTasksFlat().filter(x => state[taskKey(x.m.num, x.t)]).length;
+}
+function completedInMonth(m){
+  let c = 0;
+  m.groups.forEach(g => g.tasks.forEach(t => { if(state[taskKey(m.num,t)]) c++; }));
+  return c;
+}
+function totalInMonth(m){ return m.groups.reduce((s,g)=>s+g.tasks.length,0); }
+function completedInGroup(m, g){ return g.tasks.filter(t => state[taskKey(m.num,t)]).length; }
+
+let progressRingInstance = null;
+let selectedPhase = PHASES[0];
+
+function renderPhaseTabs(){
+  const el = document.getElementById('phaseTabs');
+  el.innerHTML = PHASES.map(p =>
+    `<button class="tab-btn ${p===selectedPhase?'active':''}" data-phase="${p}">${p.replace(/^Phase \d+ — /,'')}</button>`
+  ).join('');
+  el.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selectedPhase = btn.dataset.phase;
+      renderPhaseTabs();
+      renderPhasePanels();
+    });
+  });
+}
+
+function renderPhasePanels(){
+  const container = document.getElementById('phasePanels');
+  let html = '';
+  PHASES.forEach(phase=>{
+    const monthsInPhase = MONTHS.filter(m=>m.phase===phase);
+    html += `<div class="phase-panel ${phase===selectedPhase?'active':''}" data-phase="${phase}">`;
+    monthsInPhase.forEach(m=>{
+      const done = completedInMonth(m);
+      const total = totalInMonth(m);
+      const pct = Math.round((done/total)*100);
+      html += `<div class="month-card" data-month="${m.num}">
+        <div class="month-header" onclick="toggleMonth(${m.num})">
+          <div class="month-title-wrap">
+            <div class="month-title">Month ${m.num} &middot; ${m.title}</div>
+            <div class="month-summary">${m.summary}</div>
+          </div>
+          <div class="month-progress-wrap">
+            <div class="month-progress-track"><div class="month-progress-fill" style="width:${pct}%"></div></div>
+            <div class="month-progress-text">${done}/${total}</div>
+            <div class="chevron" id="chev-${m.num}">&#9662;</div>
+          </div>
+        </div>
+        <div class="month-body" id="body-${m.num}"><div class="group-grid">`;
+
+      m.groups.forEach(g=>{
+        const gDone = completedInGroup(m,g);
+        const gTotal = g.tasks.length;
+        const isComplete = gDone === gTotal;
+        const iconName = CATEGORY_ICON[g.category] || 'dot';
+        html += `<div class="group-box ${isComplete?'complete':''}">
+          <div class="group-head">
+            <div class="group-head-left">${iconBadge(iconName,'sm')}<div class="group-title">${g.category}</div></div>
+            <div class="group-count">${isComplete?checkBadge():''}${gDone}/${gTotal}</div>
+          </div>`;
+        if(g.free){
+          html += `<div class="group-courses">
+            <div><strong>Free —</strong> ${g.free}</div>`;
+          if(g.paid) html += `<div><strong>Paid —</strong> ${g.paid}</div>`;
+          html += `</div>`;
+        }
+        html += `<ul class="group-tasks">`;
+        g.tasks.forEach(t=>{
+          const key = taskKey(m.num, t);
+          const checked = state[key] ? 'checked' : '';
+          const doneClass = state[key] ? 'done' : '';
+          const safeKey = key.replace(/'/g,"\\'");
+          html += `<li class="task-item ${doneClass}">
+            <input type="checkbox" id="cb-${key}" ${checked} onchange="toggleTask('${safeKey}', ${m.num})">
+            <label for="cb-${key}">${t}</label>
+          </li>`;
+        });
+        html += `</ul></div>`;
+      });
+
+      html += `</div></div></div>`;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleMonth(num){
+  const body = document.getElementById('body-'+num);
+  const chev = document.getElementById('chev-'+num);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  chev.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function toggleTask(key, monthNum){
+  state[key] = !state[key];
+  saveState(state);
+  const openMonths = new Set();
+  document.querySelectorAll('.month-body.open').forEach(el => openMonths.add(el.id.replace('body-','')));
+  renderPhasePanels();
+  openMonths.forEach(num=>{
+    const body = document.getElementById('body-'+num);
+    if(body){ body.classList.add('open'); const chev = document.getElementById('chev-'+num); if(chev) chev.style.transform='rotate(180deg)'; }
+  });
+  updateProgressUI();
+}
+
+function renderPhaseBreakdown(){
+  const el = document.getElementById('phaseBreakdown');
+  let html = '';
+  PHASES.forEach(phase=>{
+    const monthsInPhase = MONTHS.filter(m=>m.phase===phase);
+    const total = monthsInPhase.reduce((s,m)=>s+totalInMonth(m),0);
+    const done = monthsInPhase.reduce((s,m)=>s+completedInMonth(m),0);
+    const pct = total ? Math.round((done/total)*100) : 0;
+    html += `<div class="phase-row">
+      <div class="pname">${phase.replace(/^Phase \d+ — /,'')}</div>
+      <div class="ptrack"><div class="pfill" style="width:${pct}%"></div></div>
+      <div class="pcount">${done}/${total}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function updateProgressUI(){
+  const total = totalTasks();
+  const done = completedTasks();
+  const pct = Math.round((done/total)*100);
+  document.getElementById('statDone').textContent = `${done} / ${total}`;
+  document.getElementById('ringValue').textContent = pct + '%';
+  renderPhaseBreakdown();
+  updateRing(pct);
+  updateTrackStatus();
+  refreshSyncCode();
+}
+
+function updateRing(pct){
+  const canvas = document.getElementById('progressRing');
+  if(progressRingInstance) progressRingInstance.destroy();
+  progressRingInstance = new Chart(canvas, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [pct, 100-pct], backgroundColor: ['#35a7ff','rgba(120,170,255,0.12)'], borderWidth: 0 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'78%', plugins:{legend:{display:false}, tooltip:{enabled:false}} }
+  });
+}
+
+function updateTrackStatus(){
+  const startVal = document.getElementById('start-date').value;
+  const pill = document.getElementById('status-pill');
+  const detail = document.getElementById('track-detail');
+  const statMonth = document.getElementById('statMonth');
+  const statAppsIn = document.getElementById('statAppsIn');
+  if(!startVal){
+    pill.textContent = 'Set a start date'; pill.className = 'status-pill notstarted';
+    detail.textContent = ''; statMonth.textContent = '—'; statAppsIn.textContent = '—';
+    return;
+  }
+  const start = new Date(startVal);
+  const now = new Date();
+  const weeksElapsed = Math.max(0, (now-start)/(1000*60*60*24*7));
+  const totalWeeks = 52;
+  const total = totalTasks();
+  const expectedDone = Math.min(total, Math.round((weeksElapsed/totalWeeks)*total));
+  const actualDone = completedTasks();
+  const diff = actualDone - expectedDone;
+
+  let label, cls;
+  if(weeksElapsed < 1 && actualDone===0){ label='Just starting'; cls='notstarted'; }
+  else if(diff >= 5){ label='Ahead of schedule'; cls='ahead'; }
+  else if(diff <= -8){ label='Behind schedule'; cls='behind'; }
+  else { label='On track'; cls='ontrack'; }
+  pill.textContent = label; pill.className = 'status-pill ' + cls;
+
+  const weekNum = Math.min(52, Math.max(1, Math.round(weeksElapsed)+1));
+  const approxMonth = Math.min(12, Math.max(1, Math.ceil(weekNum/4.33)));
+  detail.textContent = `Week ${weekNum} · ${actualDone}/${total} done, ${expectedDone} expected`;
+  statMonth.textContent = 'Month ' + approxMonth;
+  const monthsToApps = 10 - approxMonth;
+  statAppsIn.textContent = monthsToApps > 0 ? ('~' + monthsToApps + ' months away') : 'underway';
+}
+
+
+function refreshSyncCode(){
+  const out = document.getElementById('sync-code-out');
+  if(!out) return;
+  const payload = { s: state, d: (document.getElementById('start-date')||{}).value || '' };
+  out.value = btoa(JSON.stringify(payload));
+}
+function copySyncCode(){
+  const out = document.getElementById('sync-code-out');
+  const statusEl = document.getElementById('sync-status');
+  out.select(); out.setSelectionRange(0, 99999);
+  let legacyOk = false;
+  try { legacyOk = document.execCommand('copy'); } catch(e){}
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out.value).then(()=>{
+      statusEl.textContent = 'Copied — paste it into the other device now.';
+    }).catch(()=>{
+      statusEl.textContent = legacyOk ? 'Copied — paste it into the other device now.' : 'Could not auto-copy — the code is selected, copy it manually.';
+    });
+  } else {
+    statusEl.textContent = legacyOk ? 'Copied — paste it into the other device now.' : 'Could not auto-copy — the code is selected, copy it manually.';
+  }
+}
+function loadSyncCode(){
+  const input = document.getElementById('sync-code-in');
+  const statusEl = document.getElementById('sync-status');
+  const code = input.value.trim();
+  if(!code){ statusEl.textContent = 'Paste a code first.'; return; }
+  try {
+    const payload = JSON.parse(atob(code));
+    if(!payload || typeof payload.s !== 'object') throw new Error('bad payload');
+    state = payload.s || {};
+    saveState(state);
+    if(payload.d){
+      const sd = document.getElementById('start-date');
+      if(sd){ sd.value = payload.d; localStorage.setItem(STORAGE_START, payload.d); }
+    }
+    renderPhasePanels();
+    updateProgressUI();
+    statusEl.textContent = 'Loaded — this device is now up to date.';
+    input.value = '';
+  } catch(e){
+    statusEl.textContent = 'That code looks invalid — copy it again from the other device and try once more.';
+  }
+}
+
+function resetPlan(){
+  if(!confirm('Reset all checked progress? This cannot be undone.')) return;
+  state = {};
+  saveState(state);
+  renderPhasePanels();
+  updateProgressUI();
+}
+
+document.getElementById('start-date').addEventListener('change', (e)=>{
+  localStorage.setItem(STORAGE_START, e.target.value);
+  updateProgressUI();
+});
+const savedStart = localStorage.getItem(STORAGE_START);
+if(savedStart){ document.getElementById('start-date').value = savedStart; }
+
+function showFatalError(err){
+  const banner = document.createElement('div');
+  banner.style.cssText = 'max-width:1200px;margin:16px auto;padding:16px;background:#3a1414;border:1px solid #f36767;border-radius:10px;color:#ffb4b4;font-family:monospace;font-size:12px;white-space:pre-wrap;';
+  banner.textContent = 'Failed to render:\n' + (err && err.stack ? err.stack : String(err));
+  document.body.prepend(banner);
+}
+
+try {
+  document.getElementById('icon-title').innerHTML = svgIcon('gradcap');
+  document.getElementById('icon-progress').innerHTML = svgIcon('target');
+  document.getElementById('icon-rhythm').innerHTML = svgIcon('calendar');
+  document.getElementById('icon-curriculum').innerHTML = svgIcon('book');
+  document.getElementById('icon-sync').innerHTML = svgIcon('sync');
+  renderPhaseTabs();
+  renderPhasePanels();
+  updateProgressUI();
+} catch(err){ showFatalError(err); }
+window.addEventListener('error', (e)=>showFatalError(e.error || e.message));
+</script>
+</body>
+</html>
